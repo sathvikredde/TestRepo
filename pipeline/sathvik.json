@@ -55,7 +55,6 @@
 								"value": "@pipeline().parameters.p_windowEnd",
 								"type": "Expression"
 							},
-							"wildcardFileName": "*",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
@@ -76,48 +75,6 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"name": "saleDate",
-									"type": "String"
-								},
-								"sink": {
-									"name": "sale_date",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "salesItem",
-									"type": "String"
-								},
-								"sink": {
-									"name": "sales_item",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "country",
-									"type": "String"
-								},
-								"sink": {
-									"name": "country",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "quantity",
-									"type": "String"
-								},
-								"sink": {
-									"name": "quantity",
-									"type": "String"
-								}
-							}
-						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
