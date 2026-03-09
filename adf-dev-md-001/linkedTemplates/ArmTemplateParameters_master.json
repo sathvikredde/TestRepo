@@ -1,0 +1,60 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-dev-md-001"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"value": ""
+		},
+		"ls_adlsgen2_accountKey": {
+			"value": ""
+		},
+		"ls_gen2_connectionString": {
+			"value": ""
+		},
+		"ls_adlsgen2_properties_typeProperties_url": {
+			"value": "https://storagedevmd.dfs.core.windows.net/"
+		},
+		"ls_dummyJSON_properties_typeProperties_url": {
+			"value": "https://dummyjson.com"
+		},
+		"ls_kv_properties_typeProperties_baseUrl": {
+			"value": "https://kv-dev-001-md.vault.azure.net/"
+		},
+		"ls_sftp_properties_typeProperties_host": {
+			"value": "storagedevmd.blob.core.windows.net"
+		},
+		"ls_sftp_properties_typeProperties_userName": {
+			"value": "storagedevmd.sftpuser"
+		},
+		"ls_sqldb_properties_typeProperties_server": {
+			"value": "harpdevserver.database.windows.net"
+		},
+		"ls_sqldb_properties_typeProperties_database": {
+			"value": "devdb"
+		},
+		"ls_sqldb_properties_typeProperties_userName": {
+			"value": "harpadmin"
+		},
+		"TW2_properties_pipeline_parameters_p_startTime": {
+			"value": "@trigger().outputs.windowStartTime"
+		},
+		"TW2_properties_pipeline_parameters_p_endTime": {
+			"value": "@trigger().outputs.windowEndTime"
+		},
+		"trigger1_properties_pipeline_parameters_p_startTime": {
+			"value": "@trigger().outputs.windowStartTime"
+		},
+		"trigger1_properties_pipeline_parameters_p_endTime": {
+			"value": "@trigger().outputs.windowEndTime"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
