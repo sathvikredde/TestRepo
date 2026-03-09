@@ -44,6 +44,12 @@
 		"TW2_properties_pipeline_parameters_p_endTime": {
 			"value": "@trigger().outputs.windowEndTime"
 		},
+		"tr_sathvik_properties_pipeline_parameters_p_windowStart": {
+			"value": "@trigger().outputs.windowStartTime"
+		},
+		"tr_sathvik_properties_pipeline_parameters_p_windowEnd": {
+			"value": "@trigger().outputs.windowEndTime"
+		},
 		"trigger1_properties_pipeline_parameters_p_startTime": {
 			"value": "@trigger().outputs.windowStartTime"
 		},

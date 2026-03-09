@@ -59,6 +59,14 @@
 			"type": "string",
 			"defaultValue": "@trigger().outputs.windowEndTime"
 		},
+		"tr_sathvik_properties_pipeline_parameters_p_windowStart": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowStartTime"
+		},
+		"tr_sathvik_properties_pipeline_parameters_p_windowEnd": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowEndTime"
+		},
 		"trigger1_properties_pipeline_parameters_p_startTime": {
 			"type": "string",
 			"defaultValue": "@trigger().outputs.windowStartTime"
@@ -117,15 +125,6 @@
 					},
 					"ls_sftp_properties_typeProperties_userName": {
 						"value": "[parameters('ls_sftp_properties_typeProperties_userName')]"
-					},
-					"ls_sqldb_properties_typeProperties_server": {
-						"value": "[parameters('ls_sqldb_properties_typeProperties_server')]"
-					},
-					"ls_sqldb_properties_typeProperties_database": {
-						"value": "[parameters('ls_sqldb_properties_typeProperties_database')]"
-					},
-					"ls_sqldb_properties_typeProperties_userName": {
-						"value": "[parameters('ls_sqldb_properties_typeProperties_userName')]"
 					}
 				}
 			},
@@ -145,11 +144,26 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"ls_sqldb_properties_typeProperties_server": {
+						"value": "[parameters('ls_sqldb_properties_typeProperties_server')]"
+					},
+					"ls_sqldb_properties_typeProperties_database": {
+						"value": "[parameters('ls_sqldb_properties_typeProperties_database')]"
+					},
+					"ls_sqldb_properties_typeProperties_userName": {
+						"value": "[parameters('ls_sqldb_properties_typeProperties_userName')]"
+					},
 					"TW2_properties_pipeline_parameters_p_startTime": {
 						"value": "[parameters('TW2_properties_pipeline_parameters_p_startTime')]"
 					},
 					"TW2_properties_pipeline_parameters_p_endTime": {
 						"value": "[parameters('TW2_properties_pipeline_parameters_p_endTime')]"
+					},
+					"tr_sathvik_properties_pipeline_parameters_p_windowStart": {
+						"value": "[parameters('tr_sathvik_properties_pipeline_parameters_p_windowStart')]"
+					},
+					"tr_sathvik_properties_pipeline_parameters_p_windowEnd": {
+						"value": "[parameters('tr_sathvik_properties_pipeline_parameters_p_windowEnd')]"
 					},
 					"trigger1_properties_pipeline_parameters_p_startTime": {
 						"value": "[parameters('trigger1_properties_pipeline_parameters_p_startTime')]"
