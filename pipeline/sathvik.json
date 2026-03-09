@@ -121,7 +121,7 @@
 				"typeProperties": {
 					"variableName": "v_rowsCopied",
 					"value": {
-						"value": "@activity('Copy_Landing_to_Bronze').output.rowsCopied",
+						"value": "@activity('Copy_Landing_to_Bronze').output.dataRead",
 						"type": "Expression"
 					}
 				}
@@ -215,7 +215,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "@concat('INSERT INTO dbo.etl_audit VALUES (''', pipeline().RunId, ''', ''', pipeline().Pipeline, ''', ''', pipeline().parameters.p_windowStart, ''', ''', variables('v_pipelineStartTime'), ''', ''', utcNow(), ''', ''Success'', ''rows_copied=', string(variables('v_rowsCopied')), ' files_read=', string(variables('v_filesRead')), ' files_written=', string(variables('v_filesWritten')), ''')')",
+								"value": "@concat('INSERT INTO dbo.etl_audit VALUES (''', pipeline().RunId, ''', ''', pipeline().Pipeline, ''', ''', pipeline().parameters.p_windowStart, ''', ''', variables('v_pipelineStartTime'), ''', ''', utcNow(), ''', ''Success'', ''bytes_read=', string(variables('v_rowsCopied')), ' files_read=', string(variables('v_filesRead')), ' files_written=', string(variables('v_filesWritten')), ''')')",
 								"type": "Expression"
 							}
 						}
