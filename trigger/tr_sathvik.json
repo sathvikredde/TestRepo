@@ -3,7 +3,7 @@
 	"properties": {
 		"description": "Tumbling window trigger for the sathvik pipeline. Hourly windows starting from 2024-01-01T00:00:00Z. On first activation ADF backfills all windows from startTime to now (full load). Each subsequent window covers only its 1-hour slice (incremental). windowStartTime and windowEndTime are passed in UTC to the pipeline for file filtering.",
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipeline": {
 			"pipelineReference": {
 				"referenceName": "sathvik",
