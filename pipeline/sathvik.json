@@ -55,6 +55,7 @@
 								"value": "@pipeline().parameters.p_windowEnd",
 								"type": "Expression"
 							},
+							"wildcardFileName": "*",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
