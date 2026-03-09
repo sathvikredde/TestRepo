@@ -1,0 +1,334 @@
+{
+	"name": "sathvik",
+	"properties": {
+		"description": "Incremental pipeline: reads files from ADLS landing folder filtered by tumbling window start/end times, transforms and loads into bronze layer. First activation backfills all historical windows (full load); subsequent windows are incremental. Audit is written to Azure SQL on success and failure. SQL password retrieved from Key Vault via ls_kv.",
+		"activities": [
+			{
+				"name": "Set_PipelineStartTime",
+				"description": "Capture pipeline start time for audit",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_pipelineStartTime",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy_Landing_to_Bronze",
+				"description": "Copy files modified within the tumbling window [p_windowStart, p_windowEnd) from invoicepdflanding to bronze. Applies column renaming transformation. Works for both full load (first backfill window) and incremental (subsequent windows).",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set_PipelineStartTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"modifiedDatetimeStart": {
+								"value": "@pipeline().parameters.p_windowStart",
+								"type": "Expression"
+							},
+							"modifiedDatetimeEnd": {
+								"value": "@pipeline().parameters.p_windowEnd",
+								"type": "Expression"
+							},
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".csv"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "saleDate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sale_date",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "salesItem",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sales_item",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "country",
+									"type": "String"
+								},
+								"sink": {
+									"name": "country",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "quantity",
+									"type": "String"
+								},
+								"sink": {
+									"name": "quantity",
+									"type": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_sathvik_source",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_sathvik_sink",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_folderPath": {
+								"value": "@formatDateTime(pipeline().parameters.p_windowStart, 'yyyy/MM/dd/HH')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set_RowsCopied",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy_Landing_to_Bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_rowsCopied",
+					"value": {
+						"value": "@activity('Copy_Landing_to_Bronze').output.rowsCopied",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set_FilesRead",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy_Landing_to_Bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_filesRead",
+					"value": {
+						"value": "@activity('Copy_Landing_to_Bronze').output.filesRead",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set_FilesWritten",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy_Landing_to_Bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_filesWritten",
+					"value": {
+						"value": "@activity('Copy_Landing_to_Bronze').output.filesWritten",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Script_Audit_Success",
+				"description": "Insert success audit record into dbo.etl_audit. SQL password sourced from Key Vault via ls_sqldb -> ls_kv.",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Set_RowsCopied",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set_FilesRead",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set_FilesWritten",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "@concat('INSERT INTO dbo.etl_audit VALUES (''', pipeline().RunId, ''', ''', pipeline().Pipeline, ''', ''', pipeline().parameters.p_windowStart, ''', ''', variables('v_pipelineStartTime'), ''', ''', utcNow(), ''', ''Success'', ''rows_copied=', string(variables('v_rowsCopied')), ' files_read=', string(variables('v_filesRead')), ' files_written=', string(variables('v_filesWritten')), ''')')",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "Script_Audit_Failure",
+				"description": "Insert failure audit record into dbo.etl_audit when Copy activity fails. SQL password sourced from Key Vault via ls_sqldb -> ls_kv.",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Copy_Landing_to_Bronze",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "@concat('INSERT INTO dbo.etl_audit VALUES (''', pipeline().RunId, ''', ''', pipeline().Pipeline, ''', ''', pipeline().parameters.p_windowStart, ''', ''', variables('v_pipelineStartTime'), ''', ''', utcNow(), ''', ''Failed'', ''', replace(activity('Copy_Landing_to_Bronze').error.message, '''', ''''''), ''')')",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"p_windowStart": {
+				"type": "string",
+				"defaultValue": ""
+			},
+			"p_windowEnd": {
+				"type": "string",
+				"defaultValue": ""
+			}
+		},
+		"variables": {
+			"v_pipelineStartTime": {
+				"type": "String"
+			},
+			"v_rowsCopied": {
+				"type": "Integer"
+			},
+			"v_filesRead": {
+				"type": "Integer"
+			},
+			"v_filesWritten": {
+				"type": "Integer"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-03-09T00:00:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
