@@ -1,0 +1,195 @@
+{
+	"name": "pl_totest_TW",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"modifiedDatetimeStart": {
+								"value": "@pipeline().parameters.p_startTime",
+								"type": "Expression"
+							},
+							"modifiedDatetimeEnd": {
+								"value": "@pipeline().parameters.p_endTime",
+								"type": "Expression"
+							},
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_invoice_pdf_landing",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DelimitedText3",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "v_Rows_read",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "rowsread",
+					"value": {
+						"value": "@activity('Copy data1').output.dataRead",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "vrows_write",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "rowswrite",
+					"value": {
+						"value": "@activity('Copy data1').output.dataWritten",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Filesread",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "filesRead",
+					"value": {
+						"value": "@activity('Copy data1').output.filesRead",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "filesWritten",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "filesWritten",
+					"value": {
+						"value": "@activity('Copy data1').output.filesWritten",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"p_startTime": {
+				"type": "string"
+			},
+			"p_endTime": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"rowsread": {
+				"type": "Integer"
+			},
+			"rowswrite": {
+				"type": "Integer"
+			},
+			"filesRead": {
+				"type": "Integer"
+			},
+			"filesWritten": {
+				"type": "Integer"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-03-02T22:18:44Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

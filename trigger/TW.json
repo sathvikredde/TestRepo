@@ -1,0 +1,17 @@
+{
+	"name": "TW",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 5,
+				"startTime": "2026-02-20T20:17:00",
+				"timeZone": "Eastern Standard Time"
+			}
+		}
+	}
+}

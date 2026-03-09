@@ -1,0 +1,9 @@
+{
+	"name": "adf-dev-md-001",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "a7455e99-90f1-407f-a22a-843e527fd30e",
+		"tenantId": "700af874-4239-4b7e-8b7a-d697f74c684a"
+	}
+}

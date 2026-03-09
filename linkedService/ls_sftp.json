@@ -1,0 +1,24 @@
+{
+	"name": "ls_sftp",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "Sftp",
+		"typeProperties": {
+			"host": "storagedevmd.blob.core.windows.net",
+			"port": 22,
+			"skipHostKeyValidation": true,
+			"authenticationType": "Basic",
+			"userName": "storagedevmd.sftpuser",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_kv",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "sshkey",
+				"secretVersion": "a99cb95886064acc850beedfb118d1c9"
+			}
+		}
+	}
+}
